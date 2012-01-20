@@ -1,0 +1,187 @@
+<?php
+
+/**
+* Valid permissions for this module
+* @return array An array of valid permissions for the onthisdate module
+*/
+function ding_wagnerguide_perm() {
+  return array('administer ding_wagnerguide');
+}
+
+/**
+ *
+ * @return array 
+ */
+function ding_wagnerguide_admin() {
+  $link_base = '{
+  "Vej":"http://web.wagnerguide.com/vejleLibrary.aspx",
+  "Bor":"http://web.wagnerguide.com/BorkopLibrary.aspx",
+  "Egt":"http://web.wagnerguide.com/EgtvedLibrary.aspx",
+  "Giv":"http://web.wagnerguide.com/GiveLibrary.aspx",
+  "Jel":"http://web.wagnerguide.com/JellingLibrary.aspx"
+}';
+
+  $transformationarray = '{
+  "Department":{
+  },
+  "Location":{
+    "bus":false,
+    "dagpleje":false,
+    "depot":false,
+    "kontor":false,
+    "magasin":false,
+    "magasin1":false,
+    "magasin2":false,
+    "magasin3":false
+  },
+  "Sublocation":{
+  }
+}';
+
+  $form = array();
+
+  $form['ding_wagnerguide_linkbase'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Base URL for branches'),
+    '#default_value' => variable_get('ding_wagnerguide_linkbase', $link_base),
+    '#rows' => 7,
+    '#description' => t("."),
+    '#required' => TRUE,
+  );
+  $form['ding_wagnerguide_transformationarray'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Translation array'),
+    '#default_value' => variable_get('ding_wagnerguide_transformationarray', $transformationarray),
+    '#rows' => 20,
+    '#description' => t("."),
+    '#required' => TRUE,
+  );
+
+  return system_settings_form($form);
+}
+
+function ding_wagnerguide_admin_validate($form, &$form_state) {
+  $link_base = $form_state['values']['ding_wagnerguide_linkbase'];
+  if (!is_array(json_decode($link_base, true))) {
+    form_set_error('ding_wagnerguide_linkbase', t('Malformed JSON: Does not transform to array.'));
+  }
+  $transformationarray = $form_state['values']['ding_wagnerguide_transformationarray'];
+  if (!is_array(json_decode($transformationarray, true))) {
+    form_set_error('ding_wagnerguide_transformationarray', t('Malformed JSON: Does not transform to array.'));
+  }
+}
+
+function ding_wagnerguide_menu() {
+
+  $items = array();
+
+  $items['admin/config/ding/wagnerguide'] = array(
+    'title' => t('Wagnerguide module settings'),
+    'description' => t(''),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ding_wagnerguide_admin'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+   );
+
+  $items['ding/wagnerguide/item/%'] = array(
+    'title' => 'Ding Wagnerguide links',
+    'description' => 'Returns a list of links to Wagnerguide',
+    'page callback' => 'ding_wagnerguide_get_wagner_link',
+    'page arguments' => array(3),
+    //'access arguments' => array('access content'),
+    //'type' => MENU_CALLBACK,
+    //'file' => 'ding_wagnerguide.module',
+  );
+
+  return $items;
+}
+
+/**
+ * Impliments hook_trampoline
+ * @return array 
+ */
+function ding_wagnerguide_trampoline() {
+  $items = array();
+  $items['ding/wagnerguide/item/%'] = array(
+    /*'includes' => array(
+      drupal_get_path('module', 'ding_provider') . '/ding_provider.module',
+      drupal_get_path('module', 'ctools') . '/ctools.module'
+    ),
+    'hooks' => array('ding_provider_availability', 'ctools_plugin_directory' => array('alma', 'openruth')),*/
+  );
+  return $items;
+}
+
+
+/**
+ *
+ * @param array $provider_ids
+ * @return array 
+ */
+function ding_wagnerguide_get_wagner_link($provider_id) {
+  $details = alma_client_invoke('catalogue_record_detail', $provider_id);
+
+  $link_parts = array(
+    'Department' => 'department_id',
+    'Location' => 'location_id',
+    'Sublocation' => 'sublocation_id',
+    'Shelf' => 'shelf_mark');
+  $query_string_parts_base = array('Lang=da', 'menu=false');
+  $trans = array(
+    '~ae' => 'æ',
+    '~oe' => 'ø',
+    '~aa' => 'å',
+  );
+  $link_base = json_decode(variable_get('ding_wagnerguide_linkbase', ''), true);
+  $transformationarray = json_decode(variable_get('ding_wagnerguide_transformationarray', ''), true);
+
+  $result = array();
+  if ($details && isset($details['records'])) {
+    foreach ($details['records'] as $alma_id => $record) {
+      $result[$alma_id] = array();
+      foreach ($record['holdings'] as $branch_holding) {
+
+        $query_string_parts = $query_string_parts_base;
+
+        foreach ($link_parts as $link_part => $holding_part) {
+          if (!empty($branch_holding[$holding_part])) {
+            if ($link_part == 'Shelf') {
+              // Use only first letter of Shelf mark
+              if (preg_match("/[a-zA-ZæøåÆØÅ]/u", $branch_holding['shelf_mark'], $match)) {
+                $query_string_parts[] = 'Shelf=' . strtoupper($match[0]);
+              }
+            } else {
+              if(isset($transformationarray[$link_part][$branch_holding[$holding_part]])) {
+                // translate using the $transformationarray array
+                $link_part_value = $transformationarray[$link_part][$branch_holding[$holding_part]];
+                if (!$link_part_value) {
+                  // if a value is set to false in $transformationarray, no link will be given.
+                  $query_string_parts = '';
+                  break;
+                }
+              } else {
+                // or just pass the value if no entry in $transformationarray, but replace æøå.
+                $link_part_value = strtr($branch_holding[$holding_part], $trans);
+              }
+              $query_string_parts[] = $link_part . '=' . $link_part_value;
+            }
+          }
+        }
+
+        if ($query_string_parts && isset($link_base[$branch_holding['branch_id']])) {
+          $query_string = join('&', $query_string_parts);
+          $result[$alma_id][] = $link_base[$branch_holding['branch_id']] . '?' . $query_string;
+        } else {
+          $result[$alma_id][] = '';
+        }
+      }
+
+    }
+  }
+  drupal_set_header('Content-Type: application/json; charset=utf-8');
+  echo json_encode($result);
+  return;
+}
+
+drupal_add_js(drupal_get_path('module', 'ding_wagnerguide') .'/ding_wagnerguide.js', 'module', 'footer', true);
