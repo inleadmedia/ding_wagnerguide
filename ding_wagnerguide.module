@@ -89,6 +89,7 @@ function ding_wagnerguide_menu() {
     'description' => 'Returns a list of links to Wagnerguide',
     'page callback' => 'ding_wagnerguide_get_wagner_link',
     'page arguments' => array(3),
+    'access arguments' => array('access content'),
   );
 
   return $items;
