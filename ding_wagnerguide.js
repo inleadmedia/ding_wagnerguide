@@ -46,6 +46,16 @@ Drupal.dingWagnerguide.populate = function() {
     if (wagnerLinks[index]) {
       if (wagnerLinks[index].href) {
         $(this).append(' <a style="display:inline" href="' + wagnerLinks[index].href + '" target="_blank">[kort]</a>');
+      } else if (wagnerLinks[index].popup) {
+        var link = $(this).append(' <a style="display:inline">[kort]</a>');
+        var $dialog = $('<div></div>').html(wagnerLinks[index].popup).dialog({
+          autoOpen: false,
+          title: ''
+        });
+        link.click(function() {
+          $dialog.dialog('open');
+          return false;
+        });
       }
       if (wagnerLinks[index].debug) {
         $(this).append('<!-- ' + wagnerLinks[index].debug + ' -->');
