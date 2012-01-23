@@ -45,9 +45,9 @@ Drupal.dingWagnerguide.populate = function() {
   $('.ting-availability ul.library-list li').each(function(index){
     if (wagnerLinks[index]) {
       if (wagnerLinks[index].href) {
-        $(this).append(' <a style="display:inline" href="' + wagnerLinks[index].href + '" target="_blank">[kort]</a>');
+        $(this).prepend('<a style="display:inline" href="' + wagnerLinks[index].href + '" target="_blank">[kort]</a> ');
       } else if (wagnerLinks[index].popup) {
-        var link = $(this).append(' <a style="display:inline">[kort]</a>');
+        var link = $(this).prepend(' <a style="display:inline">[kort]</a> ');
         var $dialog = $('<div></div>').html(wagnerLinks[index].popup).dialog({
           autoOpen: false,
           title: ''
