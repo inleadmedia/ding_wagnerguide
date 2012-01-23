@@ -44,7 +44,12 @@ Drupal.dingWagnerguide.populate = function() {
   var wagnerLinks = Drupal.dingWagnerguide.data[Drupal.dingWagnerguide.itemId];
   $('.ting-availability ul.library-list li').each(function(index){
     if (wagnerLinks[index]) {
-      $(this).append(' <a style="display:inline" href="' + wagnerLinks[index] + '" target="_blank">[kort]</a>');
+      if (wagnerLinks[index].href) {
+        $(this).append(' <a style="display:inline" href="' + wagnerLinks[index].href + '" target="_blank">[kort]</a>');
+      }
+      if (wagnerLinks[index].debug) {
+        $(this).append('<!-- ' + wagnerLinks[index].debug + ' -->');
+      }
     }
   });
 

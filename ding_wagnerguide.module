@@ -56,7 +56,14 @@ function ding_wagnerguide_admin() {
     '#description' => t("."),
     '#required' => TRUE,
   );
-
+  $form['ding_wagnerguide_debug'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Debug mode'),
+    '#default_value' => variable_get('ding_wagnerguide_debug', false),
+    '#description' => t("If set to tru, will print HTML comment after wagnerguide link with the content of 'holding' from Alma."),
+    '#required' => TRUE,
+  );
+  
   return system_settings_form($form);
 }
 
@@ -113,7 +120,7 @@ function ding_wagnerguide_trampoline() {
  */
 function ding_wagnerguide_get_wagner_link($provider_id) {
   $details = alma_client_invoke('catalogue_record_detail', $provider_id);
-
+//print_r($details);
   $link_parts = array(
     'Department' => 'department_id',
     'Location' => 'location_id',
@@ -133,7 +140,7 @@ function ding_wagnerguide_get_wagner_link($provider_id) {
     foreach ($details['records'] as $alma_id => $record) {
       $result[$alma_id] = array();
       foreach ($record['holdings'] as $branch_holding) {
-
+        $holding = array();
         $query_string_parts = $query_string_parts_base;
 
         foreach ($link_parts as $link_part => $holding_part) {
@@ -163,10 +170,15 @@ function ding_wagnerguide_get_wagner_link($provider_id) {
 
         if ($query_string_parts && isset($link_base[$branch_holding['branch_id']])) {
           $query_string = join('&', $query_string_parts);
-          $result[$alma_id][] = $link_base[$branch_holding['branch_id']] . '?' . $query_string;
+          $holding['href'] = $link_base[$branch_holding['branch_id']] . '?' . $query_string;
         } else {
-          $result[$alma_id][] = '';
+          $holding['href'] = '';
         }
+        
+        if (variable_get('ding_wagnerguide_debug', false)) {
+          $holding['debug'] = print_r($branch_holding, true);
+        }
+        $result[$alma_id][] = $holding;
       }
 
     }
