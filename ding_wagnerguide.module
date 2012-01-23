@@ -120,7 +120,7 @@ function ding_wagnerguide_trampoline() {
  */
 function ding_wagnerguide_get_wagner_link($provider_id) {
   $details = alma_client_invoke('catalogue_record_detail', $provider_id);
-//print_r($details);
+
   $link_parts = array(
     'Department' => 'department_id',
     'Location' => 'location_id',
