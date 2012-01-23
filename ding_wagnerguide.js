@@ -5,7 +5,6 @@
 
 // Container object for all our availability stuff.
 Drupal.dingWagnerguide = {};
-///profiles/ding/modules/trampoline/index.php?q=ting/availability/item/23685531/details
 
 $(document).ready(function() {
   // check if there is a container for ting-availability
