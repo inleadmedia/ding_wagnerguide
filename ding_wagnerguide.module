@@ -25,14 +25,14 @@ function ding_wagnerguide_admin() {
   "department_id":{
   },
   "location_id":{
-    "bus":false,
-    "dagpleje":false,
-    "depot":false,
-    "kontor":false,
-    "magasin":false,
-    "magasin1":false,
-    "magasin2":false,
-    "magasin3":false
+    "bus":"",
+    "dagpleje":"",
+    "depot":"",
+    "kontor":"",
+    "magasin":"",
+    "magasin1":"",
+    "magasin2":"",
+    "magasin3":""
   },
   "sublocation_id":{
   }
