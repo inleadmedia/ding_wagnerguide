@@ -12,9 +12,9 @@ $(document).ready(function() {
 
     //find item id
     if (itemContainer = $('div').filter(function () {
-      return this.id.match(/ting-item-[1-9].*/);
+      return this.id.match(/ting-item-[0-9].*/);
     }).get(0)) {
-      Drupal.dingWagnerguide.itemId = itemContainer.id.match(/[1-9]+/);
+      Drupal.dingWagnerguide.itemId = itemContainer.id.match(/[0-9]+/);
 
       // get wagnerguide links
       if (Drupal.settings.trampolinePath) {
