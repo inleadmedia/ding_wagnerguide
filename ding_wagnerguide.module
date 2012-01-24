@@ -1,9 +1,9 @@
 <?php
 
 /**
-* Valid permissions for this module
-* @return array An array of valid permissions for the onthisdate module
-*/
+ * Valid permissions for this module
+ * @return array An array of valid permissions for the onthisdate module
+ */
 function ding_wagnerguide_perm() {
   return array('administer ding_wagnerguide');
 }
@@ -69,7 +69,7 @@ function ding_wagnerguide_admin() {
     '#description' => t("If set to tru, will print HTML comment after wagnerguide link with the content of 'holding' from Alma."),
     '#required' => TRUE,
   );
-  
+
   return system_settings_form($form);
 }
 
@@ -100,7 +100,7 @@ function ding_wagnerguide_menu() {
     'page arguments' => array('ding_wagnerguide_admin'),
     'access arguments' => array('access administration pages'),
     'type' => MENU_NORMAL_ITEM,
-   );
+  );
 
   $items['ding/wagnerguide/item/%'] = array(
     'title' => 'Ding Wagnerguide links',
@@ -122,7 +122,6 @@ function ding_wagnerguide_trampoline() {
   $items['ding/wagnerguide/item/%'] = array();
   return $items;
 }
-
 
 /**
  *
@@ -195,13 +194,12 @@ function ding_wagnerguide_get_wagner_link($provider_id) {
         } else {
           $holding['href'] = '';
         }
-        
+
         if (variable_get('ding_wagnerguide_debug', false)) {
           $holding['debug'] = print_r($branch_holding, true);
         }
         $result[$alma_id][] = $holding;
       }
-
     }
   }
   drupal_set_header('Content-Type: application/json; charset=utf-8');
@@ -209,4 +207,4 @@ function ding_wagnerguide_get_wagner_link($provider_id) {
   return;
 }
 
-drupal_add_js(drupal_get_path('module', 'ding_wagnerguide') .'/ding_wagnerguide.js', 'module', 'footer', true);
+drupal_add_js(drupal_get_path('module', 'ding_wagnerguide') . '/ding_wagnerguide.js', 'module', 'footer', true);
