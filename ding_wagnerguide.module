@@ -48,14 +48,20 @@ function ding_wagnerguide_admin() {
     '#description' => t("."),
     '#required' => TRUE,
   );
-  $form['ding_wagnerguide_transformationarray'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Translation array'),
-    '#default_value' => variable_get('ding_wagnerguide_transformationarray', $transformationarray),
-    '#rows' => 20,
-    '#description' => t("."),
-    '#required' => TRUE,
-  );
+
+  // make a transformation array text area pr. branch
+  $branches = json_decode(variable_get('ding_wagnerguide_linkbase', ''), true);
+  foreach ($branches as $branch => $link) {
+    $field = 'ding_wagnerguide_transformationarray_' . $branch;
+    $form[$field] = array(
+      '#type' => 'textarea',
+      '#title' => t('Translation array for branch "' . $branch . '"'),
+      '#default_value' => variable_get($field, $transformationarray),
+      '#rows' => 15,
+      '#description' => t("."),
+      '#required' => TRUE,
+    );
+  }
   $form['ding_wagnerguide_debug'] = array(
     '#type' => 'checkbox',
     '#title' => t('Debug mode'),
@@ -71,10 +77,15 @@ function ding_wagnerguide_admin_validate($form, &$form_state) {
   $link_base = $form_state['values']['ding_wagnerguide_linkbase'];
   if (!is_array(json_decode($link_base, true))) {
     form_set_error('ding_wagnerguide_linkbase', t('Malformed JSON: Does not transform to array.'));
-  }
-  $transformationarray = $form_state['values']['ding_wagnerguide_transformationarray'];
-  if (!is_array(json_decode($transformationarray, true))) {
-    form_set_error('ding_wagnerguide_transformationarray', t('Malformed JSON: Does not transform to array.'));
+  } else {
+    $branches = json_decode($link_base);
+    foreach ($branches as $branch => $link) {
+      $field = 'ding_wagnerguide_transformationarray_' . $branch;
+      $transformationarray = $form_state['values'][$field];
+      if (!is_array(json_decode($transformationarray, true))) {
+        form_set_error($field, t('Malformed JSON: Does not transform to array.'));
+      }
+    }
   }
 }
 
@@ -121,6 +132,7 @@ function ding_wagnerguide_trampoline() {
 function ding_wagnerguide_get_wagner_link($provider_id) {
   $details = alma_client_invoke('catalogue_record_detail', $provider_id);
 
+  // Wagner parts => Alma parts
   $link_parts = array(
     'Department' => 'department_id',
     'Location' => 'location_id',
@@ -133,7 +145,6 @@ function ding_wagnerguide_get_wagner_link($provider_id) {
     '~aa' => 'å',
   );
   $link_base = json_decode(variable_get('ding_wagnerguide_linkbase', ''), true);
-  $transformationarray = json_decode(variable_get('ding_wagnerguide_transformationarray', ''), true);
 
   $result = array();
   if ($details && isset($details['records'])) {
@@ -141,41 +152,46 @@ function ding_wagnerguide_get_wagner_link($provider_id) {
       $result[$alma_id] = array();
       foreach ($record['holdings'] as $branch_holding) {
         $holding = array();
-        $query_string_parts = $query_string_parts_base;
+        $query_string_parts = array();
 
-        foreach ($link_parts as $link_part => $holding_part) {
-          if (!empty($branch_holding[$holding_part])) {
-            if ($link_part == 'Shelf') {
-              // Use only first letter of Shelf mark
-              if (preg_match("/[a-zA-ZæøåÆØÅ]/u", $branch_holding['shelf_mark'], $match)) {
-                $query_string_parts[] = 'Shelf=' . strtoupper($match[0]);
-              }
-            } else {
-              if(isset($transformationarray[$link_part][$branch_holding[$holding_part]])) {
-                // translate using the $transformationarray array
-                $link_part_value = $transformationarray[$link_part][$branch_holding[$holding_part]];
-                if (!$link_part_value) {
-                  // if a value is set to false in $transformationarray, no link will be given.
-                  $query_string_parts = '';
-                  break;
-                } elseif (strpos($link_part_value, 'popup,') === 0) {
-                  // if a value is set to "popup,XXX" in $transformationarray, a popup link will be given. XXX is the text in the popup.
-                  $holding['popup'] = substr($link_part_value, 6);
-                  $query_string_parts = '';
-                  break;
+        if (isset($branch_holding['branch_id']) && isset($link_base[$branch_holding['branch_id']])) {
+          $branch = $branch_holding['branch_id'];
+          $transformationarray = json_decode(variable_get('ding_wagnerguide_transformationarray_' . $branch, ''), true);
+
+          foreach ($link_parts as $link_part => $holding_part) {
+            if (!empty($branch_holding[$holding_part])) {
+              if ($link_part == 'Shelf') {
+                // Use only first letter of Shelf mark
+                if (preg_match("/[a-zA-ZæøåÆØÅ]/u", $branch_holding['shelf_mark'], $match)) {
+                  $query_string_parts[] = 'Shelf=' . strtoupper($match[0]);
                 }
               } else {
-                // or just pass the value if no entry in $transformationarray, but replace æøå.
-                $link_part_value = strtr($branch_holding[$holding_part], $trans);
+                if (isset($transformationarray[$link_part][$branch_holding[$holding_part]])) {
+                  // translate using the $transformationarray array
+                  $link_part_value = $transformationarray[$link_part][$branch_holding[$holding_part]];
+                  if (!$link_part_value) {
+                    // if a value is set to false in $transformationarray, no link will be given.
+                    $query_string_parts = '';
+                    break;
+                  } elseif (strpos($link_part_value, 'popup,') === 0) {
+                    // if a value is set to "popup,XXX" in $transformationarray, a popup link will be given. XXX is the text in the popup.
+                    $holding['popup'] = substr($link_part_value, 6);
+                    $query_string_parts = '';
+                    break;
+                  }
+                } else {
+                  // or just pass the value if no entry in $transformationarray, but replace æøå.
+                  $link_part_value = strtr($branch_holding[$holding_part], $trans);
+                }
+                $query_string_parts[] = $link_part . '=' . $link_part_value;
               }
-              $query_string_parts[] = $link_part . '=' . $link_part_value;
             }
           }
         }
 
-        if ($query_string_parts && isset($link_base[$branch_holding['branch_id']])) {
-          $query_string = join('&', $query_string_parts);
-          $holding['href'] = $link_base[$branch_holding['branch_id']] . '?' . $query_string;
+        if ($query_string_parts) {
+          $query_string = join('&', array_merge($query_string_parts_base, $query_string_parts));
+          $holding['href'] = $link_base[$branch] . '?' . $query_string;
         } else {
           $holding['href'] = '';
         }
