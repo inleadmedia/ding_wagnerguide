@@ -44,9 +44,7 @@ Drupal.dingWagnerguide.populate = function() {
   var wagnerLinks = Drupal.dingWagnerguide.data[Drupal.dingWagnerguide.itemId];
   $('.ting-availability ul.library-list li').each(function(index){
     if (wagnerLinks[index]) {
-      if (wagnerLinks[index].href) {
-        $(this).prepend('<a style="display:inline" href="' + wagnerLinks[index].href + '" target="_blank">[kort]</a> ');
-      } else if (wagnerLinks[index].popup) {
+      if (wagnerLinks[index].popup) {
         var link = $(this).prepend(' <a style="display:inline">[kort]</a> ');
         var $dialog = $('<div></div>').html(wagnerLinks[index].popup).dialog({
           autoOpen: false,
@@ -56,6 +54,8 @@ Drupal.dingWagnerguide.populate = function() {
           $dialog.dialog('open');
           return false;
         });
+      } else if (wagnerLinks[index].href) {
+        $(this).prepend('<a style="display:inline" href="' + wagnerLinks[index].href + '" target="_blank">[kort]</a> ');
       }
       if (wagnerLinks[index].debug) {
         $(this).append('<!-- ' + wagnerLinks[index].debug + ' -->');
