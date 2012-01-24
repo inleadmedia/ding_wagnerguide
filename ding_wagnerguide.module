@@ -21,7 +21,7 @@ function ding_wagnerguide_admin() {
   "Jel":"http://web.wagnerguide.com/JellingLibrary.aspx"
 }';
 
-  $transformationarray = '{
+  $transformation_array = '{
   "Department":{
   },
   "Location":{
@@ -52,11 +52,11 @@ function ding_wagnerguide_admin() {
   // make a transformation array text area pr. branch
   $branches = json_decode(variable_get('ding_wagnerguide_linkbase', ''), true);
   foreach ($branches as $branch => $link) {
-    $field = 'ding_wagnerguide_transformationarray_' . $branch;
+    $field = 'ding_wagnerguide_transformation_array_' . $branch;
     $form[$field] = array(
       '#type' => 'textarea',
       '#title' => t('Translation array for branch "' . $branch . '"'),
-      '#default_value' => variable_get($field, $transformationarray),
+      '#default_value' => variable_get($field, $transformation_array),
       '#rows' => 15,
       '#description' => t("."),
       '#required' => TRUE,
@@ -80,9 +80,9 @@ function ding_wagnerguide_admin_validate($form, &$form_state) {
   } else {
     $branches = json_decode($link_base);
     foreach ($branches as $branch => $link) {
-      $field = 'ding_wagnerguide_transformationarray_' . $branch;
-      $transformationarray = $form_state['values'][$field];
-      if (!is_array(json_decode($transformationarray, true))) {
+      $field = 'ding_wagnerguide_transformation_array_' . $branch;
+      $transformation_array = $form_state['values'][$field];
+      if (!is_array(json_decode($transformation_array, true))) {
         form_set_error($field, t('Malformed JSON: Does not transform to array.'));
       }
     }
@@ -131,12 +131,13 @@ function ding_wagnerguide_trampoline() {
 function ding_wagnerguide_get_wagner_link($provider_id) {
   $details = alma_client_invoke('catalogue_record_detail', $provider_id);
 
-  // Wagner parts => Alma parts
-  $link_parts = array(
-    'Department' => 'department_id',
-    'Location' => 'location_id',
-    'Sublocation' => 'sublocation_id',
-    'Shelf' => 'shelf_mark');
+  // Alma parts => Wagner parts
+  $alma_holding_parts = array(
+    'department_id' => 'Department',
+    'location_id' => 'Location',
+    'sublocation_id' => 'Sublocation',
+    'shelf_mark' => 'Shelf'
+  );
   $query_string_parts_base = array('Lang=da', 'menu=false');
   $trans = array(
     '~ae' => 'æ',
@@ -155,34 +156,34 @@ function ding_wagnerguide_get_wagner_link($provider_id) {
 
         if (isset($branch_holding['branch_id']) && isset($link_base[$branch_holding['branch_id']])) {
           $branch = $branch_holding['branch_id'];
-          $transformationarray = json_decode(variable_get('ding_wagnerguide_transformationarray_' . $branch, ''), true);
+          $transformation_array = json_decode(variable_get('ding_wagnerguide_transformation_array_' . $branch, ''), true);
 
-          foreach ($link_parts as $link_part => $holding_part) {
-            if (!empty($branch_holding[$holding_part])) {
-              if ($link_part == 'Shelf') {
+          foreach ($alma_holding_parts as $alma_holding_part => $wagner_link_part) {
+            if (!empty($branch_holding[$alma_holding_part])) {
+              if ($wagner_link_part == 'Shelf') {
                 // Use only first letter of Shelf mark
                 if (preg_match("/[a-zA-ZæøåÆØÅ]/u", $branch_holding['shelf_mark'], $match)) {
                   $query_string_parts[] = 'Shelf=' . strtoupper($match[0]);
                 }
               } else {
-                if (isset($transformationarray[$link_part][$branch_holding[$holding_part]])) {
-                  // translate using the $transformationarray array
-                  $link_part_value = $transformationarray[$link_part][$branch_holding[$holding_part]];
-                  if (!$link_part_value) {
-                    // if a value is set to false in $transformationarray, no link will be given.
+                if (isset($transformation_array[$wagner_link_part][$branch_holding[$alma_holding_part]])) {
+                  // translate using the $transformation_array array
+                  $wagner_link_part_value = $transformation_array[$wagner_link_part][$branch_holding[$alma_holding_part]];
+                  if (!$wagner_link_part_value) {
+                    // if a value is set to false in $transformation_array, no link will be given.
                     $query_string_parts = '';
                     break;
-                  } elseif (strpos($link_part_value, 'popup,') === 0) {
-                    // if a value is set to "popup,XXX" in $transformationarray, a popup link will be given. XXX is the text in the popup.
-                    $holding['popup'] = substr($link_part_value, 6);
+                  } elseif (strpos($wagner_link_part_value, 'popup,') === 0) {
+                    // if a value is set to "popup,XXX" in $transformation_array, a popup link will be given. XXX is the text in the popup.
+                    $holding['popup'] = substr($wagner_link_part_value, 6);
                     $query_string_parts = '';
                     break;
                   }
                 } else {
-                  // or just pass the value if no entry in $transformationarray, but replace æøå.
-                  $link_part_value = strtr($branch_holding[$holding_part], $trans);
+                  // or just pass the value if no entry in $transformation_array, but replace æøå.
+                  $wagner_link_part_value = strtr($branch_holding[$alma_holding_part], $trans);
                 }
-                $query_string_parts[] = $link_part . '=' . $link_part_value;
+                $query_string_parts[] = $wagner_link_part . '=' . $wagner_link_part_value;
               }
             }
           }
