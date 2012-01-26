@@ -97,7 +97,8 @@ function ding_wagnerguide_admin_validate($form, &$form_state) {
   $link_base = $form_state['values']['ding_wagnerguide_linkbase'];
   if (!is_array(json_decode($link_base, TRUE))) {
     form_set_error('ding_wagnerguide_linkbase', t('Malformed JSON: Does not transform to array.'));
-  } else {
+  }
+  else {
     $branches = json_decode($link_base);
     foreach ($branches as $branch => $link) {
       $field = 'ding_wagnerguide_transformation_array_' . $branch;
@@ -209,7 +210,8 @@ function ding_wagnerguide_get_holding($alma_holding) {
           if (preg_match("/[a-zA-ZæøåÆØÅ]/u", $alma_holding['shelf_mark'], $match)) {
             $query_string_parts[] = $wagner_link_part . '=' . strtoupper($match[0]);
           }
-        } else {
+        }
+        else {
           // all others are translated using the transformation array
           if (isset($transformation_array[$alma_holding_part][$alma_holding[$alma_holding_part]])) {
             // if an entry exists in the transformation array, transform
@@ -218,13 +220,15 @@ function ding_wagnerguide_get_holding($alma_holding) {
               // if a value is set to false in $transformation_array, no link will be given.
               $query_string_parts = array();
               break;
-            } elseif (strpos($wagner_link_part_value, 'popup,') === 0) {
+            }
+            elseif (strpos($wagner_link_part_value, 'popup,') === 0) {
               // if a value is set to "popup,XXX" in $transformation_array, a popup link will be given. XXX is the text in the popup.
               $query_string_parts = array();
               $holding['popup'] = substr($wagner_link_part_value, 6);
               break;
             }
-          } else {
+          }
+          else {
             // or just pass the value if no entry in the transformation array, but replace æøå.
             $wagner_link_part_value = strtr($alma_holding[$alma_holding_part], $trans);
           }
