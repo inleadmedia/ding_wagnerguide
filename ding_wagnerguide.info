@@ -4,5 +4,5 @@ package = INLEAD
 core = 6.x
 version = 0.1
 
-configure = admin/config/ding/wagnerguide
+configure = admin/settings/ding/wagnerguide
 dependencies[] = alma
