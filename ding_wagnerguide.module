@@ -10,7 +10,7 @@ function ding_wagnerguide_perm() {
 
 /**
  *
- * @return array 
+ * @return array
  */
 function ding_wagnerguide_admin() {
   $link_base = '{
@@ -46,15 +46,15 @@ function ding_wagnerguide_admin() {
     '#default_value' => variable_get('ding_wagnerguide_linkbase', $link_base),
     '#rows' => 7,
     '#description' => t("
-      Contains an array in <a target=\"_blank\" href=\"http://en.wikipedia.org/wiki/JSON\">JSON</a> format.<br><br>
-      Make one entry pr. branch, and provide the Wagnerguide base URL for each.<br><br>
+      Contains an array in <a target=\"_blank\" href=\"http://en.wikipedia.org/wiki/JSON\">JSON</a> format.<br /><br />
+      Make one entry pr. branch, and provide the Wagnerguide base URL for each.<br /><br />
       The key (first part) must be the Alma representation 'branch_id', typically three letters.
     "),
     '#required' => TRUE,
   );
 
   // make a transformation array text area pr. branch
-  $branches = json_decode(variable_get('ding_wagnerguide_linkbase', $link_base), true);
+  $branches = json_decode(variable_get('ding_wagnerguide_linkbase', $link_base), TRUE);
   foreach ($branches as $branch => $link) {
     $field = 'ding_wagnerguide_transformation_array_' . $branch;
     $form[$field] = array(
@@ -63,12 +63,12 @@ function ding_wagnerguide_admin() {
       '#default_value' => variable_get($field, $transformation_array),
       '#rows' => 15,
       '#description' => t("
-        This array in <a target=\"_blank\" href=\"http://en.wikipedia.org/wiki/JSON\">JSON</a> format may contain entries for tranformation of all, some or none of the Alma representaions 'department_id, 'location_id' and 'sublocation_id'.<br><br>
-        If you want to disable the showing of a link for i.e. location_id=depot, put \"depot\":\"\" under \"location_id\" like this:<br><br>
-        <pre>\"location_id\":{\n\t\"depot\":\"\"\n}</pre><br><br>
-        If you want to make location_id=depot apear as if it was under \"magasin\" instead, put \"depot\":\"magasin\" under \"location_id\" like this:<br><br>
-        <pre>\"location_id\":{\n\t\"depot\":\"magasin\"\n}</pre><br><br>
-        If you want a popup instead of a link, do like this (it must be in one line):<br><br>
+        This array in <a target=\"_blank\" href=\"http://en.wikipedia.org/wiki/JSON\">JSON</a> format may contain entries for tranformation of all, some or none of the Alma representaions 'department_id, 'location_id' and 'sublocation_id'.<br /><br />
+        If you want to disable the showing of a link i.e. location_id=depot, put \"depot\":\"\" under \"location_id\" like this:<br /><br />
+        <pre>\"location_id\":{\n\t\"depot\":\"\"\n}</pre><br /><br />
+        If you want to make location_id=depot apear as if it was under \"magasin\" instead, put \"depot\":\"magasin\" under \"location_id\" like this:<br /><br />
+        <pre>\"location_id\":{\n\t\"depot\":\"magasin\"\n}</pre><br /><br />
+        If you want a popup instead of a link, do like this (it must be in one line):<br /><br />
         <pre>\"location_id\":{\n\t\"depot\":\"popup,This text &lt;b&gt;is shown&lt;/b&gt;&lt;br&gt;in the popup\"\n}</pre>
       "),
       '#required' => TRUE,
@@ -78,10 +78,10 @@ function ding_wagnerguide_admin() {
   $form['ding_wagnerguide_debug'] = array(
     '#type' => 'checkbox',
     '#title' => t('Debug mode'),
-    '#default_value' => variable_get('ding_wagnerguide_debug', false),
+    '#default_value' => variable_get('ding_wagnerguide_debug', FALSE),
     '#description' => t("
-      If set to true, will print HTML comment after wagnerguide link (or where link should have been printed) with the content of 'holding' from Alma.<br><br>
-      Beware that it is printed by javascript, so it cannot be seen in the page source. Use the likes of Firebug or \"View selection source\" et al.<br><br>
+      If set to true, will print HTML comment after wagnerguide link (or where link should have been printed) with the content of 'holding' from Alma.<br /><br />
+      Beware that it is printed by javascript, so it cannot be seen in the page source. Use the likes of Firebug or \"View selection source\" et al.<br /><br />
       Can be used to figure out what to put in the above fields.
     "),
     '#required' => TRUE,
@@ -93,18 +93,19 @@ function ding_wagnerguide_admin() {
 /**
  *
  * @param type $form
- * @param type $form_state 
+ * @param type $form_state
  */
 function ding_wagnerguide_admin_validate($form, &$form_state) {
   $link_base = $form_state['values']['ding_wagnerguide_linkbase'];
-  if (!is_array(json_decode($link_base, true))) {
+  if (!is_array(json_decode($link_base, TRUE))) {
     form_set_error('ding_wagnerguide_linkbase', t('Malformed JSON: Does not transform to array.'));
-  } else {
+  }
+  else {
     $branches = json_decode($link_base);
     foreach ($branches as $branch => $link) {
       $field = 'ding_wagnerguide_transformation_array_' . $branch;
       $transformation_array = $form_state['values'][$field];
-      if (!is_array(json_decode($transformation_array, true))) {
+      if (!is_array(json_decode($transformation_array, TRUE))) {
         form_set_error($field, t('Malformed JSON: Does not transform to array.'));
       }
     }
@@ -113,7 +114,7 @@ function ding_wagnerguide_admin_validate($form, &$form_state) {
 
 /**
  * Implements hook_menu
- * @return array 
+ * @return array
  */
 function ding_wagnerguide_menu() {
 
@@ -141,7 +142,7 @@ function ding_wagnerguide_menu() {
 
 /**
  * Implements hook_trampoline
- * @return array 
+ * @return array
  */
 function ding_wagnerguide_trampoline() {
   $items = array();
@@ -152,7 +153,7 @@ function ding_wagnerguide_trampoline() {
 /**
  * Called via ajax/javascript. Returns (prints) JSON containing an array of holdings
  * @param int $ting_item
- * @return null 
+ * @return null
  */
 function ding_wagnerguide_get_wagner_links($ting_item) {
   $details = alma_client_invoke('catalogue_record_detail', $ting_item);
@@ -174,7 +175,7 @@ function ding_wagnerguide_get_wagner_links($ting_item) {
 /**
  * Sub function of ding_wagnerguide_get_wagner_links.
  * Return one holding i.e. one wagnerguide link or popup data
- * 
+ *
  * @param array $alma_holding
  * @return mixed null, array or string
  */
@@ -193,7 +194,7 @@ function ding_wagnerguide_get_holding($alma_holding) {
   );
 
   $query_string_parts_base = array('Lang=da', 'menu=false');
-  $link_base = json_decode(variable_get('ding_wagnerguide_linkbase', ''), true);
+  $link_base = json_decode(variable_get('ding_wagnerguide_linkbase', ''), TRUE);
 
   $query_string_parts = array();
   $holding = array('href' => '');
@@ -201,7 +202,7 @@ function ding_wagnerguide_get_holding($alma_holding) {
   // first, do we know the branch?
   if (isset($alma_holding['branch_id']) && isset($link_base[$alma_holding['branch_id']])) {
     // get the tranformations for that branch
-    $transformation_array = json_decode(variable_get('ding_wagnerguide_transformation_array_' . $alma_holding['branch_id'], ''), true);
+    $transformation_array = json_decode(variable_get('ding_wagnerguide_transformation_array_' . $alma_holding['branch_id'], ''), TRUE);
 
     foreach ($alma_holding_parts as $alma_holding_part => $wagner_link_part) {
       if (!empty($alma_holding[$alma_holding_part])) {
@@ -209,9 +210,10 @@ function ding_wagnerguide_get_holding($alma_holding) {
         if ($alma_holding_part == 'shelf_mark') {
           // shelf_mark is a special case: Use only first letter
           if (preg_match("/[a-zA-ZæøåÆØÅ]/u", $alma_holding['shelf_mark'], $match)) {
-            $query_string_parts[] = $wagner_link_part . '=' . strtoupper($match[0]);
+            $query_string_parts[] = $wagner_link_part . '=' . drupal_strtoupper($match[0]);
           }
-        } else {
+        }
+        else {
           // all others are translated using the transformation array
           if (isset($transformation_array[$alma_holding_part][$alma_holding[$alma_holding_part]])) {
             // if an entry exists in the transformation array, transform
@@ -220,13 +222,15 @@ function ding_wagnerguide_get_holding($alma_holding) {
               // if a value is set to false in $transformation_array, no link will be given.
               $query_string_parts = array();
               break;
-            } elseif (strpos($wagner_link_part_value, 'popup,') === 0) {
+            }
+            elseif (strpos($wagner_link_part_value, 'popup,') === 0) {
               // if a value is set to "popup,XXX" in $transformation_array, a popup link will be given. XXX is the text in the popup.
               $query_string_parts = array();
-              $holding['popup'] = substr($wagner_link_part_value, 6);
+              $holding['popup'] = drupal_substr($wagner_link_part_value, 6);
               break;
             }
-          } else {
+          }
+          else {
             // or just pass the value if no entry in the transformation array, but replace æøå.
             $wagner_link_part_value = strtr($alma_holding[$alma_holding_part], $trans);
           }
@@ -241,11 +245,11 @@ function ding_wagnerguide_get_holding($alma_holding) {
     $holding['href'] = $link_base[$alma_holding['branch_id']] . '?' . $query_string;
   }
 
-  if (variable_get('ding_wagnerguide_debug', false)) {
-    $holding['debug'] = print_r($alma_holding, true);
+  if (variable_get('ding_wagnerguide_debug', FALSE)) {
+    $holding['debug'] = print_r($alma_holding, TRUE);
   }
 
   return $holding;
 }
 
-drupal_add_js(drupal_get_path('module', 'ding_wagnerguide') . '/ding_wagnerguide.js', 'module', 'footer', true);
+drupal_add_js(drupal_get_path('module', 'ding_wagnerguide') . '/ding_wagnerguide.js', 'module', 'footer', TRUE);
