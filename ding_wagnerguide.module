@@ -27,7 +27,7 @@ function ding_wagnerguide_admin() {
   "location_id":{
     "bus":"",
     "dagpleje":"",
-    "depot":"",
+    "depot":"popup,Some text or HTML to popup",
     "kontor":"",
     "magasin":"",
     "magasin1":"",
@@ -62,8 +62,7 @@ function ding_wagnerguide_admin() {
         This array in JSON format may contain entries for tranformation of all, some or none of the Alma representaions 'department_id, 'location_id' and 'sublocation_id'.<br>
         <br>
         If you want to disable the showing of a link i.e. location_id=depot, put \"depot\":\"\" under \"location_id\" like this:<br><br><pre>\"location_id\":{\n\t\"depot\":\"\"\n}</pre><br><br>
-        If you want a popup instead of a link, do like this:<br><br><pre>\"location_id\":{\n\t\"depot\":\"popup,This text &lt;b&gt;is shown&lt;/b&gt;&lt;br&gt;in the popup\"\n}</pre><br><br>
-        (It must be in one line).
+        If you want a popup instead of a link, do like this (it must be in one line):<br><br><pre>\"location_id\":{\n\t\"depot\":\"popup,This text &lt;b&gt;is shown&lt;/b&gt;&lt;br&gt;in the popup\"\n}</pre><br><br>
       "),
       '#required' => TRUE,
     );
@@ -73,7 +72,7 @@ function ding_wagnerguide_admin() {
     '#type' => 'checkbox',
     '#title' => t('Debug mode'),
     '#default_value' => variable_get('ding_wagnerguide_debug', false),
-    '#description' => t("If set to true, will print HTML comment after wagnerguide link with the content of 'holding' from Alma."),
+    '#description' => t("If set to true, will print HTML comment after wagnerguide link (or where link should have been printed) with the content of 'holding' from Alma.<br><br>Can be used to figure out what to put in the above fields."),
     '#required' => TRUE,
   );
 
