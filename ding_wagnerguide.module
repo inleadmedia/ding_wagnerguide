@@ -224,7 +224,7 @@ function ding_wagnerguide_get_holding($alma_holding) {
             elseif (strpos($wagner_link_part_value, 'popup,') === 0) {
               // if a value is set to "popup,XXX" in $transformation_array, a popup link will be given. XXX is the text in the popup.
               $query_string_parts = array();
-              $holding['popup'] = substr($wagner_link_part_value, 6);
+              $holding['popup'] = drupal_substr($wagner_link_part_value, 6);
               break;
             }
           }
