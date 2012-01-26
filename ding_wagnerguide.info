@@ -1,6 +1,6 @@
 name = "Wagnerguide integration module"
 description = "Putting links to Wagnerguide on Ding!"
-package = INLEAD
+package = "WagnerGuide"
 core = 6.x
 version = 0.1
 
