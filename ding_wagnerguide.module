@@ -45,7 +45,11 @@ function ding_wagnerguide_admin() {
     '#title' => t('Base URL for branches'),
     '#default_value' => variable_get('ding_wagnerguide_linkbase', $link_base),
     '#rows' => 7,
-    '#description' => t("Contains an array in JSON format.<br>Make one entry pr. branch, and provide the Wagnerguide base URL for each.<br>The key (first part) must be the Alma representation, typically three letters."),
+    '#description' => t("
+      Contains an array in <a target=\"_blank\" href=\"http://en.wikipedia.org/wiki/JSON\">JSON</a> format.<br><br>
+      Make one entry pr. branch, and provide the Wagnerguide base URL for each.<br><br>
+      The key (first part) must be the Alma representation 'branch_id', typically three letters.
+    "),
     '#required' => TRUE,
   );
 
@@ -59,10 +63,11 @@ function ding_wagnerguide_admin() {
       '#default_value' => variable_get($field, $transformation_array),
       '#rows' => 15,
       '#description' => t("
-        This array in JSON format may contain entries for tranformation of all, some or none of the Alma representaions 'department_id, 'location_id' and 'sublocation_id'.<br>
-        <br>
-        If you want to disable the showing of a link i.e. location_id=depot, put \"depot\":\"\" under \"location_id\" like this:<br><br><pre>\"location_id\":{\n\t\"depot\":\"\"\n}</pre><br><br>
-        If you want a popup instead of a link, do like this (it must be in one line):<br><br><pre>\"location_id\":{\n\t\"depot\":\"popup,This text &lt;b&gt;is shown&lt;/b&gt;&lt;br&gt;in the popup\"\n}</pre><br><br>
+        This array in <a target=\"_blank\" href=\"http://en.wikipedia.org/wiki/JSON\">JSON</a> format may contain entries for tranformation of all, some or none of the Alma representaions 'department_id, 'location_id' and 'sublocation_id'.<br><br>
+        If you want to disable the showing of a link i.e. location_id=depot, put \"depot\":\"\" under \"location_id\" like this:<br><br>
+        <pre>\"location_id\":{\n\t\"depot\":\"\"\n}</pre><br><br>
+        If you want a popup instead of a link, do like this (it must be in one line):<br><br>
+        <pre>\"location_id\":{\n\t\"depot\":\"popup,This text &lt;b&gt;is shown&lt;/b&gt;&lt;br&gt;in the popup\"\n}</pre>
       "),
       '#required' => TRUE,
     );
@@ -72,7 +77,11 @@ function ding_wagnerguide_admin() {
     '#type' => 'checkbox',
     '#title' => t('Debug mode'),
     '#default_value' => variable_get('ding_wagnerguide_debug', false),
-    '#description' => t("If set to true, will print HTML comment after wagnerguide link (or where link should have been printed) with the content of 'holding' from Alma.<br><br>Can be used to figure out what to put in the above fields."),
+    '#description' => t("
+      If set to true, will print HTML comment after wagnerguide link (or where link should have been printed) with the content of 'holding' from Alma.<br><br>
+      Beware that it is printed by javascript, so it cannot be seen in the page source. Use the likes of Firebug or \"View selection source\" et al.<br><br>
+      Can be used to figure out what to put in the above fields.
+    "),
     '#required' => TRUE,
   );
 
