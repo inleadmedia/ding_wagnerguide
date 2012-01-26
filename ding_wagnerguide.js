@@ -22,10 +22,10 @@ $(document).ready(function() {
       } else {
         var ajax_path = Drupal.settings.basePath;
       }
-    
+
       // until I can get trampoline to work...
       ajax_path = Drupal.settings.basePath;
-    
+
       $.getJSON(ajax_path + 'ding/wagnerguide/item/' + Drupal.dingWagnerguide.itemId, {}, function(data) {
         Drupal.dingWagnerguide.data = data;
         var waitForContentTimer = window.setInterval(function() {
