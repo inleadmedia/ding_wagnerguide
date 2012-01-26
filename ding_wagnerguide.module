@@ -216,11 +216,11 @@ function ding_wagnerguide_get_holding($alma_holding) {
             $wagner_link_part_value = $transformation_array[$alma_holding_part][$alma_holding[$alma_holding_part]];
             if (!$wagner_link_part_value) {
               // if a value is set to false in $transformation_array, no link will be given.
-              $query_string_parts = null;
+              $query_string_parts = array();
               break;
             } elseif (strpos($wagner_link_part_value, 'popup,') === 0) {
               // if a value is set to "popup,XXX" in $transformation_array, a popup link will be given. XXX is the text in the popup.
-              $query_string_parts = null;
+              $query_string_parts = array();
               $holding['popup'] = substr($wagner_link_part_value, 6);
               break;
             }
@@ -234,7 +234,7 @@ function ding_wagnerguide_get_holding($alma_holding) {
     }
   }
 
-  if (is_array($query_string_parts)) {
+  if ($query_string_parts) {
     $query_string = join('&', array_merge($query_string_parts_base, $query_string_parts));
     $holding['href'] = $link_base[$alma_holding['branch_id']] . '?' . $query_string;
   }
