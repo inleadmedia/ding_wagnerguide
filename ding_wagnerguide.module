@@ -208,7 +208,7 @@ function ding_wagnerguide_get_holding($alma_holding) {
         if ($alma_holding_part == 'shelf_mark') {
           // shelf_mark is a special case: Use only first letter
           if (preg_match("/[a-zA-ZæøåÆØÅ]/u", $alma_holding['shelf_mark'], $match)) {
-            $query_string_parts[] = $wagner_link_part . '=' . strtoupper($match[0]);
+            $query_string_parts[] = $wagner_link_part . '=' . drupal_strtoupper($match[0]);
           }
         }
         else {
