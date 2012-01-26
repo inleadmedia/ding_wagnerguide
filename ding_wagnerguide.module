@@ -64,8 +64,10 @@ function ding_wagnerguide_admin() {
       '#rows' => 15,
       '#description' => t("
         This array in <a target=\"_blank\" href=\"http://en.wikipedia.org/wiki/JSON\">JSON</a> format may contain entries for tranformation of all, some or none of the Alma representaions 'department_id, 'location_id' and 'sublocation_id'.<br><br>
-        If you want to disable the showing of a link i.e. location_id=depot, put \"depot\":\"\" under \"location_id\" like this:<br><br>
+        If you want to disable the showing of a link for i.e. location_id=depot, put \"depot\":\"\" under \"location_id\" like this:<br><br>
         <pre>\"location_id\":{\n\t\"depot\":\"\"\n}</pre><br><br>
+        If you want to make location_id=depot apear as if it was under \"magasin\" instead, put \"depot\":\"magasin\" under \"location_id\" like this:<br><br>
+        <pre>\"location_id\":{\n\t\"depot\":\"magasin\"\n}</pre><br><br>
         If you want a popup instead of a link, do like this (it must be in one line):<br><br>
         <pre>\"location_id\":{\n\t\"depot\":\"popup,This text &lt;b&gt;is shown&lt;/b&gt;&lt;br&gt;in the popup\"\n}</pre>
       "),
