@@ -12,10 +12,10 @@ $(document).ready(function() {
   if ($("#ting-object .ting-availability").length > 0) {
 
     // Find item ID.
-    if (itemContainer = $('div').filter(function () {
-      return this.id.match(/ting-item-[0-9].*/);
+    if (itemContainer = $('div.ting-item').filter(function () {
+      return this.id.match(/ting-item-\d+/);
     }).get(0)) {
-      Drupal.dingWagnerguide.itemId = itemContainer.id.match(/[0-9]+/);
+      Drupal.dingWagnerguide.itemId = itemContainer.id.match(/\d+/);
 
       // Get WagnerGUIDE links.
       if (Drupal.settings.trampolinePath) {
