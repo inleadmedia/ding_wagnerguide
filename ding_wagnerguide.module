@@ -169,7 +169,10 @@ function ding_wagnerguide_get_wagner_links($ting_item) {
     foreach ($details['records'] as $alma_id => $record) {
       $result[$alma_id] = array();
       foreach ($record['holdings'] as $alma_holding) {
-        $result[$alma_id][] = ding_wagnerguide_get_holding($alma_holding);
+        // "alma_availability_details()" only return holdings which are not loaned out. So do we:
+        if ($alma_holding['total_count'] > $alma_holding['checked_out_count']) {
+          $result[$alma_id][] = ding_wagnerguide_get_holding($alma_holding);
+        }
       }
     }
   }
