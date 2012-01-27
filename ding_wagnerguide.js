@@ -52,7 +52,7 @@ Drupal.dingWagnerguide.populate = function() {
     if (wagnerLinks[index]) {
 
       if (wagnerLinks[index].popup) {
-        var link = $(this).prepend(' <a style="display:inline">[kort]</a> ');
+        var link = $(this).prepend(' <a>[kort]</a> ');
         var $dialog = $('<div></div>').html(wagnerLinks[index].popup).dialog({
           autoOpen: false,
           title: ''
@@ -63,7 +63,7 @@ Drupal.dingWagnerguide.populate = function() {
         });
 
       } else if (wagnerLinks[index].href) {
-        $(this).prepend('<a style="display:inline" href="' + wagnerLinks[index].href + '" target="_blank">[kort]</a> ');
+        $(this).prepend('<a href="' + wagnerLinks[index].href + '" target="_blank">[kort]</a> ');
       }
 
       if (wagnerLinks[index].debug) {
