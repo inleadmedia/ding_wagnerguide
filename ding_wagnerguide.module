@@ -1,7 +1,8 @@
 <?php
 
 /**
- * Implements hook_perm
+ * Implementation of hook_perm().
+ *
  * @return array
  */
 function ding_wagnerguide_perm() {
@@ -9,34 +10,33 @@ function ding_wagnerguide_perm() {
 }
 
 /**
- *
  * @return array
  */
 function ding_wagnerguide_admin() {
   $link_base = '{
-  "Vej":"http://web.wagnerguide.com/vejleLibrary.aspx",
-  "Bor":"http://web.wagnerguide.com/BorkopLibrary.aspx",
-  "Egt":"http://web.wagnerguide.com/EgtvedLibrary.aspx",
-  "Giv":"http://web.wagnerguide.com/GiveLibrary.aspx",
-  "Jel":"http://web.wagnerguide.com/JellingLibrary.aspx"
-}';
+    "Vej":"http://web.wagnerguide.com/vejleLibrary.aspx",
+    "Bor":"http://web.wagnerguide.com/BorkopLibrary.aspx",
+    "Egt":"http://web.wagnerguide.com/EgtvedLibrary.aspx",
+    "Giv":"http://web.wagnerguide.com/GiveLibrary.aspx",
+    "Jel":"http://web.wagnerguide.com/JellingLibrary.aspx"
+  }';
 
   $transformation_array = '{
-  "department_id":{
-  },
-  "location_id":{
-    "bus":"",
-    "dagpleje":"",
-    "depot":"popup,Some text or HTML to popup",
-    "kontor":"",
-    "magasin":"",
-    "magasin1":"",
-    "magasin2":"",
-    "magasin3":""
-  },
-  "sublocation_id":{
-  }
-}';
+    "department_id":{
+    },
+    "location_id":{
+      "bus":"",
+      "dagpleje":"",
+      "depot":"popup,Some text or HTML to popup",
+      "kontor":"",
+      "magasin":"",
+      "magasin1":"",
+      "magasin2":"",
+      "magasin3":""
+    },
+    "sublocation_id":{
+    }
+  }';
 
   $form = array();
 
@@ -47,13 +47,13 @@ function ding_wagnerguide_admin() {
     '#rows' => 7,
     '#description' => t("
       Contains an array in <a target=\"_blank\" href=\"http://en.wikipedia.org/wiki/JSON\">JSON</a> format.<br /><br />
-      Make one entry pr. branch, and provide the Wagnerguide base URL for each.<br /><br />
+      Make one entry pr. branch, and provide the WagnerGUIDE base URL for each.<br /><br />
       The key (first part) must be the Alma representation 'branch_id', typically three letters.
     "),
     '#required' => TRUE,
   );
 
-  // make a transformation array text area pr. branch
+  // Make a transformation array text area per branch.
   $branches = json_decode(variable_get('ding_wagnerguide_linkbase', $link_base), TRUE);
   foreach ($branches as $branch => $link) {
     $field = 'ding_wagnerguide_transformation_array_' . $branch;
@@ -80,7 +80,7 @@ function ding_wagnerguide_admin() {
     '#title' => t('Debug mode'),
     '#default_value' => variable_get('ding_wagnerguide_debug', FALSE),
     '#description' => t("
-      If set to true, will print HTML comment after wagnerguide link (or where link should have been printed) with the content of 'holding' from Alma.<br /><br />
+      If set to true, will print HTML comment after WagnerGUIDE link (or where link should have been printed) with the content of 'holding' from Alma.<br /><br />
       Beware that it is printed by javascript, so it cannot be seen in the page source. Use the likes of Firebug or \"View selection source\" et al.<br /><br />
       Can be used to figure out what to put in the above fields.
     "),
@@ -91,7 +91,6 @@ function ding_wagnerguide_admin() {
 }
 
 /**
- *
  * @param type $form
  * @param type $form_state
  */
@@ -113,7 +112,8 @@ function ding_wagnerguide_admin_validate($form, &$form_state) {
 }
 
 /**
- * Implements hook_menu
+ * Implementation of hook_menu().
+ *
  * @return array
  */
 function ding_wagnerguide_menu() {
@@ -121,7 +121,7 @@ function ding_wagnerguide_menu() {
   $items = array();
 
   $items['admin/settings/ding/wagnerguide'] = array(
-    'title' => t('Wagnerguide module settings'),
+    'title' => t('WagnerGUIDE module settings'),
     'description' => t(''),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('ding_wagnerguide_admin'),
@@ -130,8 +130,8 @@ function ding_wagnerguide_menu() {
   );
 
   $items['ding/wagnerguide/item/%'] = array(
-    'title' => 'Ding Wagnerguide links',
-    'description' => 'Returns a list of links to Wagnerguide',
+    'title' => 'Ding WagnerGUIDE links',
+    'description' => 'Returns a list of links to WagnerGUIDE',
     'page callback' => 'ding_wagnerguide_get_wagner_links',
     'page arguments' => array(3),
     'access arguments' => array('access content'),
@@ -141,7 +141,11 @@ function ding_wagnerguide_menu() {
 }
 
 /**
- * Implements hook_trampoline
+ * Implementation of hook_trampoline().
+ *
+ * @todo This function is not being used.
+ * @see https://github.com/inleadmedia/ding_wagnerguide/blob/master/ding_wagnerguide.js#L26
+ *
  * @return array
  */
 function ding_wagnerguide_trampoline() {
@@ -151,7 +155,9 @@ function ding_wagnerguide_trampoline() {
 }
 
 /**
- * Called via ajax/javascript. Returns (prints) JSON containing an array of holdings
+ * Called via AJAX/JavaScript.
+ * Returns (prints) JSON containing an array of holdings.
+ *
  * @param int $ting_item
  * @return null
  */
@@ -174,13 +180,13 @@ function ding_wagnerguide_get_wagner_links($ting_item) {
 
 /**
  * Sub function of ding_wagnerguide_get_wagner_links.
- * Return one holding i.e. one wagnerguide link or popup data
+ * Return one holding i.e. one WagnerGUIDE link or popup data.
  *
  * @param array $alma_holding
  * @return mixed null, array or string
  */
 function ding_wagnerguide_get_holding($alma_holding) {
-  // Alma parts => Wagner parts
+  // Alma parts => Wagner parts.
   $alma_holding_parts = array(
     'department_id' => 'Department',
     'location_id' => 'Location',
@@ -199,39 +205,39 @@ function ding_wagnerguide_get_holding($alma_holding) {
   $query_string_parts = array();
   $holding = array('href' => '');
 
-  // first, do we know the branch?
+  // Firstly check if we know the branch.
   if (isset($alma_holding['branch_id']) && isset($link_base[$alma_holding['branch_id']])) {
-    // get the tranformations for that branch
+    // Get the tranformations for that branch.
     $transformation_array = json_decode(variable_get('ding_wagnerguide_transformation_array_' . $alma_holding['branch_id'], ''), TRUE);
 
     foreach ($alma_holding_parts as $alma_holding_part => $wagner_link_part) {
       if (!empty($alma_holding[$alma_holding_part])) {
 
         if ($alma_holding_part == 'shelf_mark') {
-          // shelf_mark is a special case: Use only first letter
+          // Shelf_mark is a special case: Use only first letter.
           if (preg_match("/[a-zA-ZæøåÆØÅ]/u", $alma_holding['shelf_mark'], $match)) {
             $query_string_parts[] = $wagner_link_part . '=' . drupal_strtoupper($match[0]);
           }
         }
         else {
-          // all others are translated using the transformation array
+          // All others are translated using the transformation array.
           if (isset($transformation_array[$alma_holding_part][$alma_holding[$alma_holding_part]])) {
-            // if an entry exists in the transformation array, transform
+            // If an entry exists in the transformation array, transform.
             $wagner_link_part_value = $transformation_array[$alma_holding_part][$alma_holding[$alma_holding_part]];
             if (!$wagner_link_part_value) {
-              // if a value is set to false in $transformation_array, no link will be given.
+              // If a value is set to false in $transformation_array, no link will be given.
               $query_string_parts = array();
               break;
             }
             elseif (strpos($wagner_link_part_value, 'popup,') === 0) {
-              // if a value is set to "popup,XXX" in $transformation_array, a popup link will be given. XXX is the text in the popup.
+              // If a value is set to "popup,XXX" in $transformation_array, a popup link will be given. XXX is the text in the popup.
               $query_string_parts = array();
               $holding['popup'] = drupal_substr($wagner_link_part_value, 6);
               break;
             }
           }
           else {
-            // or just pass the value if no entry in the transformation array, but replace æøå.
+            // Or just pass the value if no entry in the transformation array, but replace æøå.
             $wagner_link_part_value = strtr($alma_holding[$alma_holding_part], $trans);
           }
           $query_string_parts[] = $wagner_link_part . '=' . $wagner_link_part_value;

@@ -1,8 +1,8 @@
-name = "Wagnerguide integration module"
-description = "Putting links to Wagnerguide on Ding!"
-package = "WagnerGuide"
-core = 6.x
-version = 0.1
+name = "WagnerGUIDE integration module"
+description = "Module for integrating WagnerGUIDE with a D!ng site."
+package = "Ding!"
+core = "6.x"
+version = "0.2"
 
 configure = admin/settings/ding/wagnerguide
 dependencies[] = alma
