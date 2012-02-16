@@ -6,6 +6,11 @@
 function ding_wagnerguide_init() {
   drupal_add_js(drupal_get_path('module', 'ding_wagnerguide') . '/ding_wagnerguide.js', 'module', 'footer', TRUE);
   drupal_add_css(drupal_get_path('module', 'ding_wagnerguide') .'/ding_wagnerguide.css');
+  drupal_add_js(array(
+	                    'ding_wagnerguide' => array(
+                                                  'modulePath' => drupal_get_path('module', 'ding_wagnerguide'),
+	                                               ), 
+											), 'setting');
 }
 
 /**
