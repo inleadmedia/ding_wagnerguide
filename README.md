@@ -75,3 +75,33 @@ The following exceptions are available and can be inserted into the above templa
         "popup":"This material is in depot - please contact the staff so they can retrieve it for you"
     }
 
+The following is a full example of a Translation array for a branch:
+
+    {
+      "department_id":{},
+      "location_id":{
+        "bus":{
+          "popup":"Materialet er i BUSSEN - og kan findes frem til dig næste gang bussen er hjemme. Spørg personalet"
+        },
+        "dagpleje":{},
+        "depot":{
+          "popup":"Materialet er i DEPOT - du kan få personalet på Vejle Bibliotek til at hente det til dig"
+        },
+        "kontor":{},
+        "magasin":{
+          "popup":"Materialet er i MAGASIN - du kan få personalet på Vejle Bibliotek til at hente det til dig"
+        },
+        "magasin1":{
+          "ignore_mtype":"cd",
+          "popup":"Materialet er i MAGASIN - du kan få personalet på Vejle Bibliotek til at hente det til dig"
+        },
+        "magasin2":{
+          "popup":"Materialet er i MAGASIN - du kan få personalet på Vejle Bibliotek til at hente det til dig"
+        },
+        "magasin3":{
+          "popup":"Materialet er i MAGASIN - du kan få personalet på Vejle Bibliotek til at hente det til dig"
+        }
+      },
+      "sublocation_id":{}
+    }
+
