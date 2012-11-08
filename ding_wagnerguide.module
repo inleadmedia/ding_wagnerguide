@@ -77,12 +77,15 @@ function ding_wagnerguide_admin() {
       '#rows' => 15,
       '#description' => t("
         This array in <a target=\"_blank\" href=\"http://en.wikipedia.org/wiki/JSON\">JSON</a> format may contain entries for tranformation of all, some or none of the Alma representaions 'department_id, 'location_id' and 'sublocation_id'.<br /><br />
-        If you want to disable the showing of a link i.e. location_id=depot, put \"depot\":\"\" under \"location_id\" like this:<br /><br />
-        <pre>\"location_id\":{\n\t\"depot\":\"\"\n}</pre><br /><br />
-        If you want to make location_id=depot apear as if it was under \"magasin\" instead, put \"depot\":\"magasin\" under \"location_id\" like this:<br /><br />
-        <pre>\"location_id\":{\n\t\"depot\":\"magasin\"\n}</pre><br /><br />
-        If you want a popup instead of a link, do like this (it must be in one line):<br /><br />
-        <pre>\"location_id\":{\n\t\"depot\":\"popup,This text &lt;b&gt;is shown&lt;/b&gt;&lt;br&gt;in the popup\"\n}</pre>
+        No link, use:<br />
+        <pre>\"location_id\":{\n\t\"depot\":{}\n}</pre><br />
+        Rewriting label, use:<br />
+        <pre>\"location_id\":{\n\t\"depot\":{\n\"new_label\":\"magasin\"\n}\n}</pre><br />
+        For popup, use:<br />
+        <pre>\"location_id\":{\n\t\"depot\":{\n\"popup\":\"Popup text\"\n}\n}</pre>
+        Ignore rule for certain material types, use:<br />
+        <pre>\"location_id\":{\n\t\"depot\":{\n\"ignore_mtype\":\"cd,book\",\n\"popup\":\"Popup text\"\n}\n}</pre>
+        
       "),
       '#required' => TRUE,
     );
@@ -181,10 +184,11 @@ function ding_wagnerguide_get_wagner_links($ting_item) {
   if ($details && isset($details['records'])) {
     foreach ($details['records'] as $alma_id => $record) {
       $result[$alma_id] = array();
+      $mtype = $record['media_class'];
       foreach ($record['holdings'] as $alma_holding) {
         // "alma_availability_details()" only return holdings which are not loaned out. So do we:
         if ($alma_holding['total_count'] > $alma_holding['checked_out_count']) {
-          $result[$alma_id][] = ding_wagnerguide_get_holding($alma_holding);
+          $result[$alma_id][] = ding_wagnerguide_get_holding($alma_holding, $mtype);
         }
       }
     }
@@ -198,10 +202,11 @@ function ding_wagnerguide_get_wagner_links($ting_item) {
  * Sub function of ding_wagnerguide_get_wagner_links.
  * Return one holding i.e. one WagnerGUIDE link or popup data.
  *
- * @param array $alma_holding
+ * @param array $alma_holding, holding data on all physical instances of the item/record
+ * @param string $mtype, material type of the item/record
  * @return mixed null, array or string
  */
-function ding_wagnerguide_get_holding($alma_holding) {
+function ding_wagnerguide_get_holding($alma_holding, $mtype) {
   // Alma parts => Wagner parts.
   $alma_holding_parts = array(
     'department_id' => 'Department',
@@ -242,26 +247,32 @@ function ding_wagnerguide_get_holding($alma_holding) {
         }
         else {
           // All others are translated using the transformation array.
-          if (isset($transformation_array[$alma_holding_part][$alma_holding[$alma_holding_part]])) {
-            // If an entry exists in the transformation array, transform.
-            $wagner_link_part_value = $transformation_array[$alma_holding_part][$alma_holding[$alma_holding_part]];
-            if (!$wagner_link_part_value) {
+          $wagner_link_part_array = $transformation_array[$alma_holding_part][$alma_holding[$alma_holding_part]];
+          
+          // only transform if transformation array contains something. If material type should be ignored, just continue as if transformation array was empty 
+          if (isset($wagner_link_part_array) && (strpos($wagner_link_part_array['ignore_mtype'], $mtype) === false)) {
+            
+            // If a new_label value exists in the transformation array, transform. 
+            $wagner_link_part_value = $wagner_link_part_array['new_label'];
+            
+            if (!$wagner_link_part_array) {    
               // If a value is set to false in $transformation_array, no link will be given.
               $query_string_parts = array();
               break;
             }
-            elseif (strpos($wagner_link_part_value, 'popup,') === 0) {
-              // If a value is set to "popup,XXX" in $transformation_array, a popup link will be given. XXX is the text in the popup.
+            elseif (isset($wagner_link_part_array['popup'])) {
+              // If $transformation_array entry contains a popup value, a popup link will be given. The popup value is the text in the popup.
               $query_string_parts = array();
-              $holding['popup'] = drupal_substr($wagner_link_part_value, 6);
+              $holding['popup'] = $wagner_link_part_array['popup'];
               break;
             }
+            
           }
           else {
             // Or just pass the value if no entry in the transformation array, but replace æøå.
             $wagner_link_part_value = strtr($alma_holding[$alma_holding_part], $trans);
           }
-          $query_string_parts[] = $wagner_link_part . '=' . $wagner_link_part_value;
+          $query_string_parts[] = $wagner_link_part . '=' . $wagner_link_part_value;   //EA change to correct value from link part array
         }
       }
     }
