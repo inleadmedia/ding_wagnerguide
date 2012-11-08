@@ -35,20 +35,22 @@ function ding_wagnerguide_admin() {
   }';
 
   $transformation_array = '{
-    "department_id":{
-    },
+    "department_id":{},
     "location_id":{
-      "bus":"",
-      "dagpleje":"",
-      "depot":"popup,Some text or HTML to popup",
-      "kontor":"",
-      "magasin":"",
-      "magasin1":"",
-      "magasin2":"",
-      "magasin3":""
+      "bus":{},
+      "dagpleje":{},
+      "depot":{
+        "popup,Some text or HTML to popup"
+      },
+      "kontor":{},
+      "magasin":{
+        "popup,Some text or HTML to popup"
+      },
+      "magasin1":{},
+      "magasin2":{},
+      "magasin3":{}
     },
-    "sublocation_id":{
-    }
+    "sublocation_id":{}
   }';
 
   $form = array();
