@@ -10,7 +10,7 @@ div.ting-availability ul.library-list li {
 	}
 
 .ting-availability .library-list a.wagnerguide {
-  background: url("/sites/all/modules/ding_wagnerguide/images/button-wagner-bg.png") repeat scroll 0 0 transparent;
+  background: url("./images/button-wagner-bg.png") repeat scroll 0 0 transparent;
   color: white;
   display: block;
   position: absolute;
