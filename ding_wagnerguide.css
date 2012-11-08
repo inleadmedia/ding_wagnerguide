@@ -1,3 +1,34 @@
-div.ting-availability ul.library-list li a {
-  display:inline;
-}
+div.ting-availability ul.library-list {
+  padding-left: 95px;
+	width: 355px;
+  }
+	
+div.ting-availability ul.library-list li {
+  height: auto;
+  line-height: 30px;
+	position: relative;
+	}
+
+.ting-availability .library-list a.wagnerguide {
+  background: url("./images/button-wagner-bg.png") repeat scroll 0 0 transparent;
+  color: white;
+  display: block;
+  position: absolute;
+	left:-95px;
+  font-size: 1.2em;
+  height: 26px;
+  padding-left: 0.8em;
+  width: 90px;
+  /*
+	display: inline;
+  float: left;
+  margin-right: 0.5em;
+  */
+	}
+
+/*	
+.ting-availability .library-list a.wagnerguide span {
+  position: absolute;
+	left:-9000px;
+  }
+*/

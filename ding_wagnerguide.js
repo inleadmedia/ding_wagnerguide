@@ -45,14 +45,15 @@ $(document).ready(function() {
 
 Drupal.dingWagnerguide.populate = function() {
   var wagnerLinks = Drupal.dingWagnerguide.data[Drupal.dingWagnerguide.itemId];
-
+  //var buttonImg = '<img src="/' + Drupal.settings.ding_wagnerguide.modulePath + '/images/button-wagner.png"/>';
+	
   // Run through the printed holdings and insert links/popups.
   //   Hope that the lines are in the same order as our links as we have no id on the individual lines.
   $('.ting-availability ul.library-list li').each(function(index){
     if (wagnerLinks[index]) {
 
       if (wagnerLinks[index].popup) {
-        var link = $(this).prepend(' <a>[kort]</a> ');
+        var link = $(this).prepend(' <a class="wagnerguide popup" title="Click the button for more information"><span>Find</span></a> ');
         var $dialog = $('<div></div>').html(wagnerLinks[index].popup).dialog({
           autoOpen: false,
           title: ''
@@ -63,7 +64,7 @@ Drupal.dingWagnerguide.populate = function() {
         });
 
       } else if (wagnerLinks[index].href) {
-        $(this).prepend('<a href="' + wagnerLinks[index].href + '" target="_blank">[kort]</a> ');
+        $(this).prepend('<a class="wagnerguide map" href="' + wagnerLinks[index].href + '" target="_blank" title="Click and see on a map where the material is located in the library"><span>Find</span></a> ');
       }
 
       if (wagnerLinks[index].debug) {
